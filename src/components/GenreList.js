@@ -15,7 +15,7 @@ const GenreCardsWrapper = styled.div`
   padding: 10px;
 `;
 
-const GenreList = () => {
+const GenreList = props => {
   const [genreList, setGenreList] = useState([]);
 
   // useEffect(() => {
@@ -30,7 +30,13 @@ const GenreList = () => {
       <GenresTitle>Music Genres</GenresTitle>
       <GenreCardsWrapper>
         {genresMockData.map((genre, index) =>
-          <GenreCard genreImg={genre.picture_medium} genreName={genre.name} key={index} />
+          <GenreCard
+            genreId={genre.id}
+            genreImg={genre.picture_medium}
+            genreName={genre.name}
+            key={index}
+            {...props}
+          />
         )}
       </GenreCardsWrapper>
     </>

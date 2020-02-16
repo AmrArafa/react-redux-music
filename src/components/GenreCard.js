@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import 'antd/dist/antd.css';
 import { Modal } from 'antd';
+import axios from 'axios';
+import ArtistCard from './ArtistCard';
 
 const StyledGenreCard = styled.div`
   margin: 10px;
@@ -34,12 +36,27 @@ const StyledGenreCard = styled.div`
 `;
 
 const GenreCard = props => {
-  const { genreImg, genreName } = props;
+  const { genreImg, genreName, genreId, history } = props;
   const [modalVisibility, setModalVisibility] = useState(false);
+  const [artistsList, setArtistsList] = useState([]);
+
+  const handleClick = () => {
+    setModalVisibility(true);
+    history.push(`/genre/${genreId}/artists`);
+    axios.get(`https://cors-anywhere.herokuapp.com/https://api.deezer.com/genre/${genreId}/artists`)
+      .then(response => {
+        setArtistsList(response.data.data);
+      });
+  }
+
+  const handleOnCancel = () => {
+    setModalVisibility(false);
+    history.push('/');
+  }
 
   return (
     <>
-      <StyledGenreCard onClick={() => setModalVisibility(true)}>
+      <StyledGenreCard onClick={handleClick}>
         <img src={genreImg} alt={genreName} />
         <h2>{genreName}</h2>
       </StyledGenreCard>
@@ -47,9 +64,15 @@ const GenreCard = props => {
         title={`${genreName} Artists`}
         visible={modalVisibility}
         footer={null}
-        onCancel={() => setModalVisibility(false)}
+        onCancel={handleOnCancel}
       >
-        <p>Show artists here</p>
+        {artistsList.map((artist, index) =>
+          <ArtistCard
+            artistName={artist.name}
+            artistImg={artist.picture_small}
+            key={index}
+          />
+        )}
       </Modal>
     </>
   );
