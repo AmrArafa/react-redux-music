@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import 'antd/dist/antd.css';
 import { Modal } from 'antd';
@@ -39,6 +39,12 @@ const GenreCard = props => {
   const { genreImg, genreName, genreId, history } = props;
   const [modalVisibility, setModalVisibility] = useState(false);
   const [artistsList, setArtistsList] = useState([]);
+
+  useEffect(() => {
+    if (!modalVisibility) {
+      history.push('/');
+    }
+  }, [history, modalVisibility]);
 
   const handleClick = () => {
     setModalVisibility(true);
