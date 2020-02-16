@@ -1,11 +1,9 @@
 import React from 'react';
-import GenreList from './components/genre_list';
+import GenreList from './components/GenreList';
 
 function App() {
   return (
-    <div className="App">
-      <GenreList />
-    </div>
+    <GenreList />
   );
 }
 

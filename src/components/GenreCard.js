@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import 'antd/dist/antd.css';
+import { Modal } from 'antd';
 
 const StyledGenreCard = styled.div`
   margin: 10px;
   position: relative;
+  cursor: pointer;
   ::before {
     content: '';
     width: 100%;
@@ -32,13 +35,24 @@ const StyledGenreCard = styled.div`
 
 const GenreCard = props => {
   const { genreImg, genreName } = props;
+  const [modalVisibility, setModalVisibility] = useState(false);
 
   return (
-    <StyledGenreCard>
-      <img src={genreImg} alt={genreName} />
-      <h2>{genreName}</h2>
-    </StyledGenreCard>
-  )
+    <>
+      <StyledGenreCard onClick={() => setModalVisibility(true)}>
+        <img src={genreImg} alt={genreName} />
+        <h2>{genreName}</h2>
+      </StyledGenreCard>
+      <Modal
+        title={`${genreName} Artists`}
+        visible={modalVisibility}
+        footer={null}
+        onCancel={() => setModalVisibility(false)}
+      >
+        <p>Show artists here</p>
+      </Modal>
+    </>
+  );
 }
 
 export default GenreCard;

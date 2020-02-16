@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import GenreCard from './genre_card';
+import GenreCard from './GenreCard';
 import { genres as genresMockData } from '../mock_data/genres.json';
 import styled from 'styled-components';
 
