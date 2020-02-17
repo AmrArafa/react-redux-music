@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import 'antd/dist/antd.css';
-import { Modal } from 'antd';
-import axios from 'axios';
-import ArtistCard from './ArtistCard';
+import React, { useState, useEffect } from "react";
+import { connect } from "react-redux";
+import { Modal, Spin, Pagination } from "antd";
+import styled from "styled-components";
+import ArtistCard from "./ArtistCard";
+import "antd/dist/antd.css";
+import { getArtists } from "../redux/actions";
 
 const StyledGenreCard = styled.div`
   margin: 10px;
   position: relative;
   cursor: pointer;
   ::before {
-    content: '';
+    content: "";
     width: 100%;
     height: 100%;
     position: absolute;
@@ -35,30 +36,39 @@ const StyledGenreCard = styled.div`
   }
 `;
 
-const GenreCard = props => {
-  const { genreImg, genreName, genreId, history } = props;
+const PaginationWrapper = styled.div`
+  text-align: center;
+  padding: 20px 0;
+`;
+
+const GenreCard = ({
+  genreImg,
+  genreName,
+  genreId,
+  history,
+  getArtists,
+  artists,
+  total,
+  isPending
+}) => {
   const [modalVisibility, setModalVisibility] = useState(false);
-  const [artistsList, setArtistsList] = useState([]);
 
   useEffect(() => {
     if (!modalVisibility) {
-      history.push('/');
+      history.push("/");
     }
   }, [history, modalVisibility]);
 
   const handleClick = () => {
     setModalVisibility(true);
     history.push(`/genre/${genreId}/artists`);
-    axios.get(`https://cors-anywhere.herokuapp.com/https://api.deezer.com/genre/${genreId}/artists`)
-      .then(response => {
-        setArtistsList(response.data.data);
-      });
-  }
+    getArtists(genreId, { index: 1 });
+  };
 
   const handleOnCancel = () => {
     setModalVisibility(false);
-    history.push('/');
-  }
+    history.push("/");
+  };
 
   return (
     <>
@@ -66,22 +76,41 @@ const GenreCard = props => {
         <img src={genreImg} alt={genreName} />
         <h2>{genreName}</h2>
       </StyledGenreCard>
+
       <Modal
         title={`${genreName} Artists`}
         visible={modalVisibility}
         footer={null}
         onCancel={handleOnCancel}
       >
-        {artistsList.map((artist, index) =>
-          <ArtistCard
-            artistName={artist.name}
-            artistImg={artist.picture_small}
-            key={index}
-          />
-        )}
+        <Spin spinning={isPending}>
+          {artists && (
+            <>
+              {artists.map((artist, index) => (
+                <ArtistCard
+                  artistName={artist.name}
+                  artistImg={artist.picture_small}
+                  key={index}
+                />
+              ))}
+              <PaginationWrapper>
+                <Pagination
+                  onChange={(index) => getArtists(genreId, { index })}
+                  total={total}
+                />
+              </PaginationWrapper>
+            </>
+          )}
+        </Spin>
       </Modal>
     </>
   );
+};
+
+function mapStateToProps({ artistsReducer: { artists, total, isPending } }) {
+  return { artists, total, isPending };
 }
 
-export default GenreCard;
+const mapDispatchToProps = { getArtists };
+
+export default connect(mapStateToProps, mapDispatchToProps)(GenreCard);

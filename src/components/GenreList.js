@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import GenreCard from './GenreCard';
-import { genres as genresMockData } from '../mock_data/genres.json';
-import styled from 'styled-components';
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import GenreCard from "./GenreCard";
+import styled from "styled-components";
+import { Spin, Pagination } from "antd";
+import { getGenres } from "../redux/actions";
 
 const GenresTitle = styled.h1`
   text-align: center;
@@ -11,36 +12,56 @@ const GenresTitle = styled.h1`
 const GenreCardsWrapper = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
   padding: 10px;
+  min-height: 700px;
 `;
 
-const GenreList = props => {
-  const [genreList, setGenreList] = useState([]);
+const PaginationWrapper = styled.div`
+  text-align: center;
+  padding: 20px 0;
+`;
 
-  // useEffect(() => {
-  //   axios.get('https://cors-anywhere.herokuapp.com/https://api.deezer.com/genre')
-  //     .then(response => {
-  //       setGenreList(response.data.data);
-  //     });
-  // }, []);
+const GenreList = ({ getGenres, genres, total, isPending, ...props }) => {
+  useEffect(() => {
+    getGenres({ index: 1 });
+  }, [getGenres]);
 
   return (
     <>
       <GenresTitle>Music Genres</GenresTitle>
-      <GenreCardsWrapper>
-        {genresMockData.map((genre, index) =>
-          <GenreCard
-            genreId={genre.id}
-            genreImg={genre.picture_medium}
-            genreName={genre.name}
-            key={index}
-            {...props}
+      <Spin spinning={isPending}>
+        <GenreCardsWrapper>
+          {genres && (
+            <>
+              {genres.map((genre, index) => (
+                <GenreCard
+                  genreId={genre.id}
+                  genreImg={genre.picture_medium}
+                  genreName={genre.name}
+                  key={index}
+                  {...props}
+                />
+              ))}
+            </>
+          )}
+        </GenreCardsWrapper>
+        <PaginationWrapper>
+          <Pagination
+            onChange={(index) => getGenres({ index })}
+            total={total}
           />
-        )}
-      </GenreCardsWrapper>
+        </PaginationWrapper>
+      </Spin>
     </>
   );
+};
+
+function mapStateToProps({ genresReducer: { genres, total, isPending } }) {
+  return { genres, total, isPending };
 }
 
-export default GenreList;
+const mapDispatchToProps = { getGenres };
+
+export default connect(mapStateToProps, mapDispatchToProps)(GenreList);
